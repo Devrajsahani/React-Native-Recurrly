@@ -3,3 +3,21 @@
 @import "tailwindcss/utilities.css";
  
 @import "nativewind/theme";
+
+@layer utilities {
+  .tabs-icon {
+    @apply flex-1 items-center justify-center pt-3;
+  }
+  
+  .tabs-pill {
+    @apply items-center justify-center rounded-full py-2 px-4 bg-transparent;
+  }
+  
+  .tabs-active {
+    background-color: #ea7a53 !important;
+  }
+  
+  .tabs-glyph {
+    @apply w-6 h-6;
+  }
+}
