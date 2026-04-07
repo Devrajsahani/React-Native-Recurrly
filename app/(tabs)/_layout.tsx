@@ -11,18 +11,19 @@ const tabBar = components.tabBar;
 const TabIcon = ({ focused, icon }: TabIconProps) => {
     return (
         <View style={{
+            flex: 1,
             alignItems: 'center',
             justifyContent: 'center',
-            paddingTop: 30, // Fixed: Lightly push down to achieve visual center
+            width: '100%',
         }}>
-            <View style={{
-                alignItems: 'center',
-                justifyContent: 'center',
-                borderRadius: 20,
-                paddingVertical: 16,
-                paddingHorizontal: 16,
-                backgroundColor: focused ? colors.accent : 'transparent',
-            }}>
+                <View style={{
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    borderRadius: 20,
+                    paddingVertical: 12,
+                    paddingHorizontal: 16,
+                    backgroundColor: focused ? colors.accent : 'transparent',
+                }}>
                 <Image
                     source={icon}
                     resizeMode="contain"
@@ -60,6 +61,8 @@ const TabLayout = () => {
                     height: tabBar.height,
                     justifyContent: 'center',
                     alignItems: 'center',
+                    paddingTop: 0,
+                    paddingBottom: 0,
                 }
             }}
         >
