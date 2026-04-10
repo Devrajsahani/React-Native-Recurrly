@@ -3,6 +3,14 @@ import "@/global.css";
 import { useFonts } from "expo-font";
 import { useEffect } from "react";
 import { SafeAreaProvider } from "react-native-safe-area-context";
+import { ClerkProvider } from '@clerk/expo'
+import { tokenCache } from '../lib/cache'
+
+const publishableKey = process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY!
+
+if (!publishableKey) {
+  throw new Error('Add your Clerk Publishable Key to the .env file')
+}
 
 SplashScreen.preventAutoHideAsync();
 
@@ -25,8 +33,10 @@ export default function RootLayout() {
   if (!fontsLoaded) return null;
 
   return (
-    <SafeAreaProvider>
-      <Stack screenOptions={{ headerShown: false }} />
-    </SafeAreaProvider>
+    <ClerkProvider publishableKey={publishableKey} tokenCache={tokenCache}>
+      <SafeAreaProvider>
+        <Stack screenOptions={{ headerShown: false }} />
+      </SafeAreaProvider>
+    </ClerkProvider>
   );
 }
