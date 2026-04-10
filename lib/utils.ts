@@ -23,3 +23,15 @@ export const formatStatusLabel = (value?: string): string => {
   if (!value) return "Unknown";
   return value.charAt(0).toUpperCase() + value.slice(1);
 };
+
+export const formatDaysLeft = (value?: string): string => {
+  if (!value) return "Unknown";
+  const parsedDate = dayjs(value);
+  return parsedDate.isValid() ? parsedDate.format("MM/DD/YYYY") : "Unknown";
+};
+
+export const getDaysLeft = (value?: string): number => {
+  if (!value) return 0;
+  const parsedDate = dayjs(value);
+  return parsedDate.isValid() ? parsedDate.diff(dayjs(), "day") : 0;
+};
