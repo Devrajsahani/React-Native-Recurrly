@@ -1,5 +1,5 @@
 import "@/global.css";
-import { FlatList, Image, Text, View } from "react-native";
+import { FlatList, Image, Text, View, Pressable } from "react-native";
 import { SafeAreaView as RNSafeAreaView } from "react-native-safe-area-context";
 import { styled } from "nativewind";
 import images from "@/constants/images";
@@ -15,17 +15,24 @@ import dayjs from "dayjs";
 import ListHeading from "@/components/listHeading";
 import UpcomingSubscriptionCard from "@/components/upcomingSubscriptionCard";
 import SubscriptionCard from "@/components/SubscriptionCard";
+import CreateSubscriptionModal from "@/components/CreateSubscriptionModal";
 import { useState } from "react";
 
 const SafeAreaView = styled(RNSafeAreaView);
 
 export default function App() {
+  const [subscriptions, setSubscriptions] = useState(HOME_SUBSCRIPTIONS);
+  const [isModalVisible, setIsModalVisible] = useState(false);
   const [expandedSubscriptionId, setExpandedSubscriptionId] = useState<
     string | null
   >(null);
 
   const handleSubscriptionPress = (id: string) => {
     setExpandedSubscriptionId((currentId) => (currentId === id ? null : id));
+  };
+
+  const handleCreateSubscription = (newSub: Subscription) => {
+    setSubscriptions((prev) => [newSub, ...prev]);
   };
 
   return (
@@ -39,7 +46,9 @@ export default function App() {
                 <Image source={images.avatar} className="home-avatar" />
                 <Text className="home-user-name">{HOME_USER.name}</Text>
               </View>
-              <Image source={icons.add} className="home-add-icon" />
+              <Pressable onPress={() => setIsModalVisible(true)}>
+                <Image source={icons.add} className="home-add-icon" />
+              </Pressable>
             </View>
 
             {/* 2. Balance Card */}
@@ -72,14 +81,14 @@ export default function App() {
               />
             </View>
 
-            {/* 4. All Subscriptions Title (Now moved here) */}
+            {/* 4. All Subscriptions Title */}
             <ListHeading title="All subscriptions" />
 
             {/* Spacer before the main list starts */}
             <View className="h-4" />
           </>
         )}
-        data={HOME_SUBSCRIPTIONS}
+        data={subscriptions}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
           <SubscriptionCard
@@ -94,7 +103,14 @@ export default function App() {
         ListEmptyComponent={
           <Text className="home-empty-state">No subscriptions yet.</Text>
         }
-        contentContainerClassName="pd-30"
+        // FIXED: Using contentContainerStyle with enough padding to clear the navbar
+        contentContainerStyle={{ paddingBottom: 120 }}
+      />
+
+      <CreateSubscriptionModal
+        visible={isModalVisible}
+        onClose={() => setIsModalVisible(false)}
+        onSubmit={handleCreateSubscription}
       />
     </SafeAreaView>
   );
