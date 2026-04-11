@@ -5,6 +5,7 @@ import { styled } from "nativewind";
 import { useSubscriptions } from "@/lib/SubscriptionContext";
 import SubscriptionCard from "@/components/SubscriptionCard";
 import { Ionicons } from '@expo/vector-icons';
+import { Pressable} from 'react-native';
 
 const SafeAreaView = styled(RNSafeAreaView)
 
@@ -45,11 +46,22 @@ const Subscription = () => {
             </View>
           )}
           ListHeaderComponent={() => (
-            <View className="pb-4 pt-6">
-              <Text className="text-3xl font-sans-bold text-primary mb-6">
-                Subscriptions
-              </Text>
-              <View className="flex-row items-center bg-card border border-border rounded-2xl px-4 py-3">
+            <View className="pb-4">
+              {/* Premium Header */}
+              <View className="py-4 flex-row items-center justify-between mb-2">
+                <Pressable 
+                  onPress={() => router.push('/')}
+                  className="size-11 rounded-full border border-border items-center justify-center bg-white shadow-sm"
+                >
+                  <Ionicons name="chevron-back" size={22} color="black" />
+                </Pressable>
+                <Text className="text-xl font-sans-bold text-primary">My Subscriptions</Text>
+                <Pressable className="size-11 rounded-full border border-border items-center justify-center bg-white shadow-sm">
+                  <Ionicons name="ellipsis-horizontal" size={22} color="black" />
+                </Pressable>
+              </View>
+
+              <View className="flex-row items-center bg-card border border-border rounded-2xl px-4 py-3 mt-2">
                 <Ionicons name="search" size={20} color="rgba(0,0,0,0.4)" />
                 <TextInput
                   placeholder="Search your plans..."

@@ -12,25 +12,24 @@ const tabBar = components.tabBar;
 const TabIcon = ({ focused, icon }: TabIconProps) => {
     return (
         <View style={{
-            flex: 1,
+            height: tabBar.height,
             alignItems: 'center',
             justifyContent: 'center',
-            width: '100%',
         }}>
-                <View style={{
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    borderRadius: 20,
-                    paddingVertical: 12,
-                    paddingHorizontal: 16,
-                    backgroundColor: focused ? colors.accent : 'transparent',
-                }}>
+            <View style={{
+                alignItems: 'center',
+                justifyContent: 'center',
+                borderRadius: 24,
+                paddingVertical: 8,
+                paddingHorizontal: 22,
+                backgroundColor: focused ? colors.accent : 'transparent',
+            }}>
                 <Image
                     source={icon}
                     resizeMode="contain"
                     style={{
-                        width: 22,
-                        height: 22,
+                        width: 25,
+                        height: 30,
                         tintColor: focused ? '#ffffff' : '#9ca3af',
                     }}
                 />
@@ -53,6 +52,8 @@ const TabLayout = () => {
             screenOptions={{
                 headerShown: false,
                 tabBarShowLabel: false,
+                // Disable automatic safe area insets to gain full manual control over centering
+                safeAreaInsets: { bottom: 0, top: 0, left: 0, right: 0 }, 
                 tabBarStyle: {
                     position: 'absolute',
                     bottom: Math.max(insets.bottom, tabBar.horizontalInset),
@@ -62,13 +63,21 @@ const TabLayout = () => {
                     backgroundColor: colors.primary,
                     borderTopWidth: 0,
                     elevation: 0,
+                    paddingBottom: 0, // Force clear bottom padding for Android gesture/button bars
                 },
                 tabBarItemStyle: {
                     height: tabBar.height,
-                    justifyContent: 'center',
                     alignItems: 'center',
-                    paddingTop: 0,
+                    justifyContent: 'center',
+                    paddingTop: 15, // Manual downward visual correction for Android
                     paddingBottom: 0,
+                },
+                tabBarIconStyle: {
+                    width: 30,
+                    height: 30,
+                },
+                tabBarLabelStyle: {
+                    display: 'none',
                 }
             }}
         >
@@ -83,6 +92,13 @@ const TabLayout = () => {
                         )
                     }} />
             ))}
+            {/* Explicitly hide the dynamic subscription details from the tab bar */}
+            <Tabs.Screen 
+                name="subscription/[id]" 
+                options={{ 
+                    href: null,
+                }} 
+            />
         </Tabs>
     )
 }
