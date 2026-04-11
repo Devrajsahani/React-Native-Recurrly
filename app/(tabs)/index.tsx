@@ -17,11 +17,12 @@ import UpcomingSubscriptionCard from "@/components/upcomingSubscriptionCard";
 import SubscriptionCard from "@/components/SubscriptionCard";
 import CreateSubscriptionModal from "@/components/CreateSubscriptionModal";
 import { useState } from "react";
+import { useSubscriptions } from "@/lib/SubscriptionContext";
 
 const SafeAreaView = styled(RNSafeAreaView);
 
 export default function App() {
-  const [subscriptions, setSubscriptions] = useState(HOME_SUBSCRIPTIONS);
+  const { subscriptions, addSubscription } = useSubscriptions();
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [expandedSubscriptionId, setExpandedSubscriptionId] = useState<
     string | null
@@ -32,7 +33,7 @@ export default function App() {
   };
 
   const handleCreateSubscription = (newSub: Subscription) => {
-    setSubscriptions((prev) => [newSub, ...prev]);
+    addSubscription(newSub);
   };
 
   return (

@@ -1,19 +1,89 @@
-import { StyleSheet, Text, View } from 'react-native'
-import React from 'react'
+import { FlatList, View, Text, TextInput, KeyboardAvoidingView, Platform, TouchableWithoutFeedback, Keyboard } from 'react-native'
+import React, { useState, useMemo } from 'react'
 import { SafeAreaView as RNSafeAreaView } from "react-native-safe-area-context";
 import { styled } from "nativewind";
+import { useSubscriptions } from "@/lib/SubscriptionContext";
+import SubscriptionCard from "@/components/SubscriptionCard";
+import { Ionicons } from '@expo/vector-icons';
 
 const SafeAreaView = styled(RNSafeAreaView)
 
+const Subscription = () => {
+  const { subscriptions } = useSubscriptions();
+  const [searchQuery, setSearchQuery] = useState('');
+  const [expandedId, setExpandedId] = useState<string | null>(null);
 
-const subscription = () => {
+  const filteredSubscriptions = useMemo(() => {
+    return subscriptions.filter(sub => 
+      sub.name.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  }, [searchQuery, subscriptions]);
+
+  const toggleExpand = (id: string) => {
+    setExpandedId(prevId => (prevId === id ? null : id));
+  };
+
   return (
-    <SafeAreaView className="flex-1 bg-background p-5">
-      <Text>subscription</Text>
+    <SafeAreaView className="flex-1 bg-background" edges={['top']}>
+      <KeyboardAvoidingView 
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        className="flex-1"
+      >
+        <FlatList
+          data={filteredSubscriptions}
+          keyExtractor={(item) => item.id}
+          renderItem={({ item }) => (
+            <View className="mb-4">
+              <SubscriptionCard
+                {...item}
+                expanded={expandedId === item.id}
+                onPress={() => {
+                  Keyboard.dismiss();
+                  toggleExpand(item.id);
+                }}
+              />
+            </View>
+          )}
+          ListHeaderComponent={() => (
+            <View className="pb-4 pt-6">
+              <Text className="text-3xl font-sans-bold text-primary mb-6">
+                Subscriptions
+              </Text>
+              <View className="flex-row items-center bg-card border border-border rounded-2xl px-4 py-3">
+                <Ionicons name="search" size={20} color="rgba(0,0,0,0.4)" />
+                <TextInput
+                  placeholder="Search your plans..."
+                  placeholderTextColor="rgba(0,0,0,0.4)"
+                  className="flex-1 ml-3 font-sans-medium text-base text-primary"
+                  value={searchQuery}
+                  onChangeText={setSearchQuery}
+                  returnKeyType="search"
+                  clearButtonMode="while-editing"
+                />
+                {searchQuery.length > 0 && Platform.OS === 'android' && (
+                  <TouchableWithoutFeedback onPress={() => setSearchQuery('')}>
+                    <Ionicons name="close-circle" size={20} color="rgba(0,0,0,0.4)" />
+                  </TouchableWithoutFeedback>
+                )}
+              </View>
+            </View>
+          )}
+          ListEmptyComponent={() => (
+            <View className="items-center justify-center py-20">
+              <Text className="text-lg font-sans-medium text-muted-foreground">
+                No subscriptions found
+              </Text>
+            </View>
+          )}
+          contentContainerClassName="px-5 pb-40"
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+          scrollEventThrottle={16}
+          onScrollBeginDrag={Keyboard.dismiss}
+        />
+      </KeyboardAvoidingView>
     </SafeAreaView>
   )
 }
 
-export default subscription
-
-const styles = StyleSheet.create({})
+export default Subscription

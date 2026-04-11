@@ -7,6 +7,8 @@ import { ClerkProvider } from '@clerk/expo'
 import { tokenCache } from '../lib/cache'
 import { PostHogProvider } from 'posthog-react-native'
 
+import { SubscriptionProvider } from "../lib/SubscriptionContext";
+
 const publishableKey = process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY!
 
 if (!publishableKey) {
@@ -40,7 +42,9 @@ export default function RootLayout() {
     >
       <ClerkProvider publishableKey={publishableKey} tokenCache={tokenCache}>
         <SafeAreaProvider>
-          <Stack screenOptions={{ headerShown: false }} />
+          <SubscriptionProvider>
+            <Stack screenOptions={{ headerShown: false }} />
+          </SubscriptionProvider>
         </SafeAreaProvider>
       </ClerkProvider>
     </PostHogProvider>

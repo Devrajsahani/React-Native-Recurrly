@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Modal,
   View,
@@ -10,10 +10,13 @@ import {
   Platform,
   TouchableWithoutFeedback,
   Keyboard,
+  ActivityIndicator,
+  Image,
 } from "react-native";
 import { icons } from "@/constants/icons";
 import dayjs from "dayjs";
 import clsx from "clsx";
+import { usePostHog } from "posthog-react-native";
 
 const CATEGORIES = [
   "Entertainment",
@@ -46,12 +49,57 @@ const CreateSubscriptionModal = ({
   const [price, setPrice] = useState("");
   const [frequency, setFrequency] = useState<"Monthly" | "Yearly">("Monthly");
   const [category, setCategory] = useState("Entertainment");
+  const [fetchedIconUrl, setFetchedIconUrl] = useState<string | null>(null);
+  const [isFetching, setIsFetching] = useState(false);
+  const posthog = usePostHog();
+
+  useEffect(() => {
+    if (name.trim().length < 2) {
+      setFetchedIconUrl(null);
+      setIsFetching(false);
+      return;
+    }
+
+    const timer = setTimeout(async () => {
+      const apiKey = process.env.EXPO_PUBLIC_API_NINJAS_KEY;
+      if (!apiKey) {
+        console.warn("API Ninjas key missing in .env");
+        return;
+      }
+
+      setIsFetching(true);
+      try {
+        const response = await fetch(
+          `https://api.api-ninjas.com/v1/logo?name=${encodeURIComponent(name.trim())}`,
+          {
+            headers: { "X-Api-Key": apiKey },
+          }
+        );
+        const data = await response.json();
+        if (data && data.length > 0 && data[0].image) {
+          setFetchedIconUrl(data[0].image);
+        } else {
+          setFetchedIconUrl(null);
+        }
+      } catch (error) {
+        console.error("Error fetching logo:", error);
+        setFetchedIconUrl(null);
+      } finally {
+        setIsFetching(false);
+      }
+    }, 800);
+
+    return () => clearTimeout(timer);
+  }, [name]);
+
+
 
   const resetForm = () => {
     setName("");
     setPrice("");
     setFrequency("Monthly");
     setCategory("Entertainment");
+    setFetchedIconUrl(null);
   };
 
   const handleClose = () => {
@@ -80,10 +128,17 @@ const CreateSubscriptionModal = ({
       status: "active",
       startDate,
       renewalDate,
-      icon: icons.wallet,
+      icon: fetchedIconUrl ? { uri: fetchedIconUrl } : icons.wallet,
       color: CATEGORY_COLORS[category] || "#081126",
       currency: "USD",
     };
+
+    posthog.capture('subscription_created', {
+      subscription_name: name.trim(),
+      subscription_price: priceNum,
+      subscription_frequency: frequency,
+      subscription_category: category,
+    });
 
     onSubmit(newSubscription);
     handleClose();
@@ -117,7 +172,21 @@ const CreateSubscriptionModal = ({
               >
                 {/* Name Field */}
                 <View className="auth-field">
-                  <Text className="auth-label">Subscription Name</Text>
+                  <View className="flex-row items-center justify-between">
+                    <Text className="auth-label">Subscription Name</Text>
+                    {isFetching ? (
+                      <ActivityIndicator size="small" color="#ea7a53" />
+                    ) : fetchedIconUrl ? (
+                      <View className="flex-row items-center gap-2">
+                        <Text className="text-[10px] font-sans-semibold text-success uppercase">Logo Found</Text>
+                        <Image 
+                          source={{ uri: fetchedIconUrl }} 
+                          className="size-6 rounded-md bg-white border border-border" 
+                          resizeMode="contain"
+                        />
+                      </View>
+                    ) : null}
+                  </View>
                   <TextInput
                     className="auth-input"
                     placeholder="e.g. Netflix"
